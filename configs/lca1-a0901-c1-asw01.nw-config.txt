@@ -1,0 +1,8 @@
+! lca1-a0901-c1-asw01.nw
+
+interface Vlan101
+ ipv6 address 2620:0119:50b2::9/64
+ ipv6 nd suppress-ra
+
+
+

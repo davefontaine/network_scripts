@@ -1,0 +1,35 @@
+
+set interfaces ae0 unit 0 family inet6 address 2620:0119:50b0:0108::2/64
+
+set interfaces xe-0/0/2 unit 0 family inet6 address 2620:0119:50b0:0102::1/64
+
+set interfaces xe-0/0/4 unit 0 family inet6 address 2620:0119:50b0:0106::1/64
+
+set interfaces xe-1/0/2 unit 0 family inet6 address 2620:0119:50b0:0103::1/64
+
+set interfaces xe-1/0/4 unit 0 family inet6 address 2620:0119:50b0:0107::1/64
+
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/2.0 interface-type p2p
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/2.0 priority 0
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/2.0 hello-interval 1
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/2.0 dead-interval 4
+
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/4.0 interface-type p2p
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/4.0 priority 0
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/4.0 hello-interval 1
+set protocols ospf3 area 0.0.0.0 interface xe-0/0/4.0 dead-interval 4
+
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/2.0 interface-type p2p
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/2.0 priority 0
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/2.0 hello-interval 1
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/2.0 dead-interval 4
+
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/4.0 interface-type p2p
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/4.0 priority 0
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/4.0 hello-interval 1
+set protocols ospf3 area 0.0.0.0 interface xe-1/0/4.0 dead-interval 4
+
+set protocols ospf3 area 0.0.0.0 interface ae0.0 interface-type p2p
+set protocols ospf3 area 0.0.0.0 interface ae0.0 priority 0
+set protocols ospf3 area 0.0.0.0 interface ae0.0 hello-interval 1
+set protocols ospf3 area 0.0.0.0 interface ae0.0 dead-interval 4

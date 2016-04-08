@@ -1,0 +1,102 @@
+
+!!!!! lca1-c1-csw02.nw
+
+!!!!! not yet implemented configuration
+
+interface Ethernet1/2
+ ipv6 address 2620:119:50b0:0101::2/64
+ ipv6 nd suppress-ra
+ ipv6 router ospfv3 1 area 0.0.0.0
+ ospfv3 network point-to-point
+ ospfv3 hello-interval 1
+ ospfv3 dead-interval 4
+ no ospfv3 passive-interface
+
+interface Ethernet2/2
+ ipv6 address 2620:119:50b0:0103::2/64
+ ipv6 nd suppress-ra
+ ipv6 router ospfv3 1 area 0.0.0.0
+ ospfv3 network point-to-point
+ ospfv3 hello-interval 1
+ ospfv3 dead-interval 4
+ no ospfv3 passive-interface
+
+
+!!!!! configuration already implemented
+
+feature ospfv3
+
+router ospfv3 1
+ router-id 10.252.128.6
+ log-adjacency-changes
+ passive-interface default
+ area 0.0.0.107 stub
+ auto-cost reference-bandwidth 200 Gbps
+
+interface Loopback0
+ ipv6 address 2620:119:50b0:2::2/128
+ ipv6 router ospfv3 1 area 0.0.0.107
+
+interface Vlan2
+ ipv6 address 2620:119:50b0:0300::2/64
+ ipv6 nd suppress-ra
+ ipv6 router ospfv3 1 area 0.0.0.107
+ ospfv3 network point-to-point
+ ospfv3 hello-interval 1
+ ospfv3 dead-interval 4
+ no ospfv3 passive-interface
+
+interface Vlan3
+ ipv6 address 2620:119:50b0:0301::2/64
+ ipv6 nd suppress-ra
+ ipv6 router ospfv3 1 area 0.0.0.107
+ ospfv3 network point-to-point
+ ospfv3 hello-interval 1
+ ospfv3 dead-interval 4
+ no ospfv3 passive-interface
+
+interface Vlan101
+ ipv6 address 2620:119:50b2:0::6/64
+ ipv6 router ospfv3 1 area 0.0.0.107
+ ipv6 nd suppress-ra
+ hsrp 2 ipv6
+  ip FE80::1
+  ip 2620:119:50b2:0::1
+  priority 150
+  preempt delay minimum 90 reload 100
+  track 1 decrement 50
+
+interface Vlan102
+ ipv6 address 2620:119:50b2:1::6/64
+ ipv6 router ospfv3 1 area 0.0.0.107
+ ipv6 nd suppress-ra
+ hsrp 2 ipv6
+  ip FE80::1
+  ip 2620:119:50b2:1::1
+  priority 150
+  preempt delay minimum 90 reload 100
+  track 1 decrement 50
+
+interface Vlan209
+ ipv6 address 2620:119:50b2:6::6/64 
+ ipv6 router ospfv3 1 area 0.0.0.107
+ ipv6 nd suppress-ra
+ hsrp 2 ipv6
+  ip FE80::1
+  ip 2620:119:50b2:6::1
+  priority 150
+  preempt delay minimum 90 reload 100
+  track 1 decrement 50
+
+interface Vlan211
+ ipv6 address 2620:119:50b2:7::6/64
+ ipv6 router ospfv3 1 area 0.0.0.107
+ ipv6 nd suppress-ra
+ hsrp 2 ipv6
+  ip FE80::1
+  ip 2620:119:50b2:7::1
+  priority 150
+  preempt delay minimum 90 reload 100
+  track 1 decrement 50
+
+

@@ -1,0 +1,6 @@
+Loopback, lo
+Ethernet, eth
+GigabitEthernet, ge
+TenGigabitEthernet, te
+Vlan, vlan
+xe, xe
