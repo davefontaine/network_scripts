@@ -36,8 +36,11 @@ junos_ipv6_interface_re = re.compile(r'^set interfaces (.*) unit \d+ family inet
 # incomplete items
 # if match is Loopback interface, create DNS entry for device 
 
-def write_dns_record(hostname_str, interface_string, ipv6_address_string):
-    print hostname_str   
+def write_dns_record_stdout(hostname_str, interface_string, ipv6_address_string):
+    if interface_string.find("lo") < 0:
+        print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
+    else:
+        print hostname_str + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
 
 
 for file in sys.argv:
@@ -47,7 +50,7 @@ for file in sys.argv:
     # if the filename conforms to the hostname naming convention, make assignments
     if m:
         hostname = m.group(2)+m.group(3)
-        environment= m.group(4)
+        environment = m.group(4)
 
     # otherwise, do not process / parse the file
     else:
@@ -59,15 +62,10 @@ for file in sys.argv:
 
     # pull out all interfaces which have an ipv6 address
     interfaces = parsed_file.find_objects_w_child(parentspec=r"^interface", childspec=r"ipv6 address")
-    #print "DEBUG: Interface list:", interfaces
 
-    # if the list is not empty this is likely a Cisco device
+    # if the list is not empty this is likely a Cisco-like device
     if interfaces != []:
-        #print "DEBUG: This seems to be a Cisco device."
         # for every interface that matches the above conditions, 
-        #  - process the interface name 
-        #  - convert it to DNS-style string
-        #  - print DNS entry
         for interface_name in interfaces:
             match_interface_name = interface_re.match(interface_name.text)
             short_interface_name = interface_name_mapping[match_interface_name.group(1)]
@@ -75,18 +73,12 @@ for file in sys.argv:
             # build interface port number with "/" substituded by "-"
             #  eg. Ethernet1/2 becomes eth1-2
             #  do this for all except loopback interface which becomes host entry
-            if short_interface_name != "lo":
-                dns_name = hostname + "-" + short_interface_name
-                if match_interface_name.lastindex >= 2:
-                    dns_name += '-' + match_interface_name.group(2)
-                if match_interface_name.lastindex >= 3:
-                    dns_name += "-" + match_interface_name.group(3)
-                if match_interface_name.lastindex >= 4:
-                    dns_name += "-" + match_interface_name.group(4)
-
-            # if loopback interface, generate dns host entry for device, don't include interface string
-            else:
-                dns_name = hostname
+            if match_interface_name.lastindex >= 2:
+                short_interface_name += '-' + match_interface_name.group(2)
+            if match_interface_name.lastindex >= 3:
+                short_interface_name += '-' + match_interface_name.group(3)
+            if match_interface_name.lastindex >= 4:
+                short_interface_name += '-' + match_interface_name.group(4)
 
             # find "ipv6 address" under interface and grab address
             for subinterface_line in interface_name.children:
@@ -95,21 +87,18 @@ for file in sys.argv:
                     ipv6_address = match_ipv6_address.group(1)
 
             # create record by merging dns_name and ipv6 address and write entry to stdout
-            #write_dns_record_stdout(hostname, 
-            dns_name += '.' + environment + '.' + 'linkedin.com'
-            dns_record = dns_name + ' AAAA ' + ipv6_address
-            print dns_record
+            write_dns_record_stdout(hostname, short_interface_name, ipv6_address)
+    # here we assume it's JUNOS, since the cisco parser came back NULL
     else:
-        #print "DEBUG: This may be a JUNOS device."
         with open(file) as f:
             entire_config = f.readlines()
         for line in entire_config:
             match_interface_name = junos_ipv6_interface_re.match(line)
             if match_interface_name:
                 interface_name = match_interface_name.group(1)
+                ipv6_address = match_interface_name.group(2)
                 interface_name.replace("/", "-")
-                #print "DEBUG: matched junos ipv6 address line. Interface:", short_interface_name, "IPv6 address:", match_interface_name.group(2)
-                print hostname + "-" + interface_name + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + match_interface_name.group(2)
+                write_dns_record_stdout(hostname, interface_name, ipv6_address)
     continue
 
 
