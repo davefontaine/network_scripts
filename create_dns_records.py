@@ -38,11 +38,14 @@ junos_ipv6_interface_re = re.compile(r'^set interfaces (.*) unit \d+ family inet
 # if match is Loopback interface, create DNS entry for device 
 
 def write_dns_record_stdout(hostname_str, interface_string, ipv6_address_string):
+    # if not the loopback interface
     if interface_string.find("lo") < 0:
         print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
+    # if this is the loopback interface, create loopback & host records
     else:
         print hostname_str + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
-        print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
+        # CNAME for "lo" interface
+        print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + ' CNAME ' + hostname_str + '.' + environment + '.' + 'linkedin.com.'
 
 
 for file in sys.argv:
