@@ -18,6 +18,7 @@ all_environments = ["nw", "corp", "prod"]
 # mapping of cli interface name string to abbreviated DNS string
 interface_name_mapping = {
     'Loopback':'lo',
+    'loopback':'lo',
     'Ethernet':'eth',
     'GigabitEthernet':'ge',
     'TenGigabitEthernet':'te',
@@ -41,6 +42,7 @@ def write_dns_record_stdout(hostname_str, interface_string, ipv6_address_string)
         print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
     else:
         print hostname_str + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
+        print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
 
 
 for file in sys.argv:
@@ -54,7 +56,7 @@ for file in sys.argv:
 
     # otherwise, do not process / parse the file
     else:
-        print 'Filename "' + file + '" does not contain device hostname.'
+        print 'WARNING: "' + file + '" does not contain device hostname.'
         continue
 
     # parse the file
