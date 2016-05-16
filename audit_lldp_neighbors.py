@@ -7,6 +7,11 @@
 #
 #   input: list of filenames to parse; filename must contain hostname eg. lca1-crt01.nw-config.txt
 #   output: lists ports enable and not-enable with LLDP
+
+# Try this to see if excluding EXT will work:
+#   egrep "^set interfaces.*description" * | egrep -v "\|EXT\|"
+
+
 # 
 
 import sys
@@ -23,7 +28,8 @@ all_environments = ["nw", "corp", "prod", "corp"]
 sys.argv.remove(sys.argv[0])
 
 hostname_re = re.compile(r'.*((' + "|".join(all_sites) + r')(.*)\.(' + "|".join(all_environments) + r')).*')
-junos_ipv6_interface_re = re.compile(r'^set interfaces (.*) (description|unit \d+ description) ".*crt[01].*"')
+junos_ipv6_interface_re = re.compile(r'^set interfaces (.*) (description|unit \d+ description).*')
+#junos_ipv6_interface_re = re.compile(r'^set interfaces (.*) (description|unit \d+ description) ".*crt[01].*"')
 junos_protocol_lldp_re = re.compile(r'^set protocols lldp interface (.*)')
 
 
@@ -45,25 +51,16 @@ for file in sys.argv:
         entire_config = f.readlines()
     for line in entire_config:
         match_int_desc = junos_ipv6_interface_re.match(line)
-        match_protocol_lldp = junos_protocol_lldp_re.match(line)
+        #match_protocol_lldp = junos_protocol_lldp_re.match(line)
         if match_int_desc:
+            entire_line = match_int_desc.group(0)
             interface_name = match_int_desc.group(1)
-            print "DEBUG: matched line is '", match_int_desc.group(0), "'"
-            print "Interface name:", interface_name
-        if match_protocol_lldp:
-            protocol_lldp = match_protocol_lldp.group(1)
-            print "Interface LLDP:", protocol_lldp 
+            if '|EXT|' not in entire_line and 'RESV_' not in entire_line:
+                if not re.search(' unit ', entire_line) and not re.search('ae\d+', interface_name) and not re.search('fxp\d+', interface_name):
+                    print match_int_desc.group(0)
+            #print "Interface name:", interface_name
+        #if match_protocol_lldp:
+            #protocol_lldp = match_protocol_lldp.group(1)
+            #print "Interface LLDP:", protocol_lldp 
 
-# if match is Loopback interface, create DNS entry for device 
-
-def write_dns_record_stdout(hostname_str, interface_string, ipv6_address_string):
-    # if not the loopback interface
-    if interface_string.find("lo") < 0:
-        print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
-    # if this is the loopback interface, create loopback & host records
-    else:
-        print hostname_str + '.' + environment + '.' + 'linkedin.com' + ' AAAA ' + ipv6_address
-        # CNAME for "lo" interface
-        print hostname_str + '-' + interface_string + '.' + environment + '.' + 'linkedin.com' + \
-                           ' CNAME ' + hostname_str + '.' + environment + '.' + 'linkedin.com.'
 
